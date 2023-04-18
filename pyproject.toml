@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyosa"
+authors = [{name = "Ante Kapetanović", email = "akape00@gmail.com"}]
+description = "Simple estimator of the irregular open surface area in 3-D"
+keywords = [
+    "point cloud",
+    "triangle mesh",
+    "surface reconstruction",
+    "surface area",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Utilities",
+]
+readme = "README.md"
+license = {file = "LICENSE"}
+dynamic = ["version"]
+requires-python = ">=3.7"
+dependencies = [
+  "numpy >= 1.20.0",
+  "open3d == 0.16.0",
+  "scipy",
+]
+
+[project.urls]
+Code = "https://github.com/akapet00/pyosa"
