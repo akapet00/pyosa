@@ -4,9 +4,9 @@ Estimates the area of an open surface represented as a point cloud in 3-D space.
 
 ## Installation
 
-Clone the repo to your local machine and install it with
+Install it simply by
 ```shell
-pip install .
+pip install pyosa
 ```
 
 ## Usage
@@ -46,7 +46,7 @@ fig, ax  = show_pcd(xyz_ds, point, circle)  # impementation in example.py
 ax.set_title(f'surface area: {area:.2f}')
 ```
 
-<p align="center"><img src="bunny.png" width="60%"></p>
+<p align="center"><img src="https://github.com/akapet00/pyosa/blob/main/bunny.png" width="60%"></p>
 
 ## Shortcomings
 
