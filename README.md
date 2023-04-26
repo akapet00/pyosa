@@ -46,7 +46,7 @@ fig, ax  = show_pcd(xyz_ds, point, circle)  # impementation in example.py
 ax.set_title(f'surface area: {area:.2f}')
 ```
 
-<p align="center"><img src="https://github.com/akapet00/pyosa/blob/main/bunny.png" width="60%"></p>
+<p align="center"><img src="https://github.com/akapet00/pyosa/raw/main/bunny.png" width="60%"></p>
 
 ## Shortcomings
 
