@@ -1,6 +1,5 @@
-from ..main import estimate
+from pyosa import estimate
 
 
 def test_estimate():
-    pass
-
+    assert True

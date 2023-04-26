@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig(level=logging.CRITICAL)
+
 import numpy as np
 from scipy import spatial
 
@@ -14,16 +17,16 @@ def _infer_knn(N):
     return knn
 
 
-def _pca(X):
+def _change_of_basis(X):
     X = X.copy()
     mu = X.mean(axis=0)
     X = X - mu
     C = X.T @ X  # convariance matrix
     U, _, _ = np.linalg.svd(C)
-    return U, mu
+    return X @ U
 
 
-def estimate(xyz, n=None, smooth=False, full_output=False, **kwargs):
+def estimate(xyz, n=None, smooth=False, **kwargs):
     """Return estimated surface area of an open surface sampled and
     given as a point cloud.
     
@@ -41,9 +44,6 @@ def estimate(xyz, n=None, smooth=False, full_output=False, **kwargs):
         If set to True, open surface is treated as smooth surface.
         Smoothing filter will be applied to the reconstructed triangle
         mesh without any shrinkage.
-    full_output : bool, optional
-        If True, reconstructed mesh is returned alongside estimated
-        surface area.
     kwargs : dict, optional
         Additional keyword arguments for
         `open3d.geometry.TriangleMesh.create_from_point_cloud_poisson`
@@ -63,8 +63,13 @@ def estimate(xyz, n=None, smooth=False, full_output=False, **kwargs):
         N = xyz.shape[0]
         if N < 10:
             raise ValueError('Number of points must be > 10.')
+        # set the point cloud in its orthonormal basis
+        xyzt = _change_of_basis(xyz)
+        # create the convex hull on tangential plane
+        hull = spatial.Delaunay(xyzt[:, :2])
+        # create the point cloud instance
         pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(xyz)
+        pcd.points = o3d.utility.Vector3dVector(xyzt)
         if n is not None:
             pcd.normals = o3d.utility.Vector3dVector(n)
         else:
@@ -77,22 +82,10 @@ def estimate(xyz, n=None, smooth=False, full_output=False, **kwargs):
         mesh.remove_duplicated_vertices()  # clean up reconstructed surface
         mesh.remove_degenerate_triangles()  # product of removing vertices
         vert = np.asarray(mesh.vertices)  # export reconstructed vertices
-        # set the point cloud in its orthonormal basis
-        U, mu = _pca(xyz)
-        xyzt = xyz @ U
-        # create the convex hull on tangential plane
-        hull = spatial.Delaunay(xyzt[:, :2])
-        # remove vertices out of the convex hull
-        vertt = (vert - mu) @ U
-        vert_mask = hull.find_simplex(vertt[:, :2]) < 0
+        # remove vertices positioned out of the convex hull
+        vert_mask = hull.find_simplex(vert[:, :2]) < 0
         mesh.remove_vertices_by_mask(vert_mask)
-        # smoothing
+        # optional smoothing
         if smooth:
             mesh = mesh.filter_smooth_taubin()
-        # compute the surface area
-        area = mesh.get_surface_area()
-        if full_output:
-            vert = np.asarray(mesh.vertices)
-            tri = np.asarray(mesh.triangles)
-            return area, {'vertices': vert, 'triangles': tri}
-        return area
+        return mesh.get_surface_area()
